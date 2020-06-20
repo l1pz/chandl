@@ -9,6 +9,13 @@ import cligen
 import httpclient
 import nimquery
 
+proc download(links: seq[string]) {.async.} =
+  let downloader = newAsyncHttpClient()
+  let fileNames = links.map(x => x.split("/")[^1])
+  let linkNamePairs = zip(links, filenames)
+  for pair in linkNamePairs:
+    asyncCheck downloader.downloadFile(pair[0], pair[1])
+
 proc chandl(videosOnly=false,imagesOnly=false,maxConcurrentDls=1,dir="./", link: string) =
   if videosOnly and imagesOnly:
     quit("Please use either -v/--videosOnly or -i/--imagesOnly switch, but not both!")

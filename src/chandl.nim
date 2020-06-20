@@ -9,6 +9,12 @@ import cligen
 import httpclient
 import nimquery
 
+template chunkArray(array: seq[untyped], size: int): seq[seq[untyped]] =
+  var index = 0
+  while index < array.len:
+    result.add(array[index .. size + index])
+    index += size
+
 proc download(links: seq[string]) {.async.} =
   let downloader = newAsyncHttpClient()
   let fileNames = links.map(x => x.split("/")[^1])

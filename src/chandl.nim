@@ -11,6 +11,8 @@ import httpclient
 import nimquery
 import progress
 
+type ProgressBar = ref progress.ProgressBar
+
 proc chunkArray[T](array: seq[T], size: int): seq[seq[T]] =
   var index = 0
   while index < array.len:
@@ -22,7 +24,7 @@ proc download(link: string, path: string) {.async.} =
   await downloader.downloadFile(link, path)
   downloader.close
 
-proc checkDownloads(downloads: seq[Future[void]], bar: ref ProgressBar): auto =
+proc checkDownloads(downloads: seq[Future[void]], bar: ProgressBar): Future[void] =
   var retFuture = newFuture[void]("downloadsCheck")
   var completedDownloads = 0
 
@@ -48,8 +50,8 @@ proc downloadConcurrent(links: seq[string], parallelDlLimit: int, dir: string) {
     else:
       @[links]
 
-  var bar: ref ProgressBar
-  bar = new ProgressBar
+  var bar: ProgressBar
+  bar = new progress.ProgressBar
   bar[] = newProgressBar(links.len)
   bar[].start()
   

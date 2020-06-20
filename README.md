@@ -1,19 +1,19 @@
 # chandl
 
-Download all images and videos froma 4chan thread.
+Download all images and videos from 4chan thread.
 
 ## Usage
 
-chandl [options]... [thread link]
+chandl [required&optional-params]
 
-### Options
+## Options
 
-**-v, --videos** - Download videos only.
-
-**-i, --images** - Download images only.
-
-**-j, --max-concurrent-downloads=<N\>** - Set maximum parallel downloads. Default: 1
-
-**-d, --dir=<DIR\>** - Set download directory. Default: ./
-
-**-h, --help** - Prints help.
+| parameter                | type   | default  | description                     |
+| ------------------------ | ------ | -------- | ------------------------------- |
+| -h, --help               |        |          | print this cligen-erated help   |
+| --help-syntax            |        |          | advanced: prepend,plurals,..    |
+| -v, --videosOnly         | bool   | false    | download videos only.           |
+| -i, --imagesOnly         | bool   | false    | download images only.           |
+| -m=, --maxConcurrentDls= | int    | 1        | set maximum parallel downloads. |
+| -d=, --dir=              | string | "./"     | set download directory.         |
+| -l=, --links=            | string | REQUIRED | thread links                    |

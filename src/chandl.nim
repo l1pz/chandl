@@ -4,10 +4,12 @@ import sequtils
 import sugar
 import asyncdispatch 
 import os
+import times
 
 import cligen
 import httpclient
 import nimquery
+import progress
 
 proc chunkArray[T](array: seq[T], size: int): seq[seq[T]] =
   var index = 0
@@ -15,18 +17,54 @@ proc chunkArray[T](array: seq[T], size: int): seq[seq[T]] =
     result.add(array[index .. min(index + size - 1, array.len - 1)])
     index += size
 
-proc download(links: seq[string], dir: string) {.async.} =
-  let fileNames = links.map(x => x.split("/")[^1])
-  let linkNamePairs = zip(links, filenames)
-  for pair in linkNamePairs:
-    let downloader = newAsyncHttpClient()
-    asyncCheck downloader.downloadFile(pair[0], dir / pair[1])
+proc download(link: string, path: string) {.async.} =
+  let downloader = newAsyncHttpClient()
+  await downloader.downloadFile(link, path)
 
-proc downloadConcurrent(links: seq[string], maxConcurrentDls: int, dir: string) {.async.} =
-  for chunk in chunkArray(links, maxConcurrentDls):
-    await download(chunk, dir)
+proc checkDownloads(downloads: seq[Future[void]], bar: ref ProgressBar): auto =
+  var retFuture = newFuture[void]("downloadsCheck")
+  var completedDownloads = 0
 
-proc chandl(videosOnly = false, imagesOnly = false, maxConcurrentDls = 1, dir = getCurrentDir(), link: string) =
+  for download in downloads:
+    download.addCallback proc (dl: Future[void]) =
+      completedDownloads += 1
+      bar[].increment()
+      if not retFuture.finished:
+        if dl.failed:
+          retFuture.fail(dl.error)
+        else:
+          if completedDownloads == downloads.len:
+            retFuture.complete()
+
+  if downloads.len == 0:
+    retFuture.complete()
+  
+  return retFuture
+
+proc downloadConcurrent(links: seq[string], parallelDlLimit: int, dir: string) {.async.} =
+  let chunks = if parallelDlLimit != 0:
+      chunkArray(links, parallelDlLimit)
+    else:
+      @[links]
+
+  var bar: ref ProgressBar
+  bar = new ProgressBar
+  bar[] = newProgressBar(links.len)
+  bar[].start()
+  
+  for chunk in chunks:
+    let fileNames = chunk.map(x => x.split("/")[^1])
+    let linkNamePairs = zip(chunk, filenames)
+    var downloads = newSeqOfCap[Future[void]](parallelDlLimit)
+    for pair in linkNamePairs:
+      let link = "https:" & pair[0]
+      let path = dir / pair[1]
+      downloads.add(download(link, path))
+    await checkDownloads(downloads, bar)
+
+  bar[].finish()
+
+proc chandl(videosOnly = false, imagesOnly = false, parallelDlLimit = 0, dir = getCurrentDir(), link: string) =
   if videosOnly and imagesOnly:
     quit("Please use either -v/--videosOnly or -i/--imagesOnly switch, but not both!")
 
@@ -35,14 +73,20 @@ proc chandl(videosOnly = false, imagesOnly = false, maxConcurrentDls = 1, dir = 
     .parseHtml
     .querySelectorAll("a.fileThumb")
     .map(x => x.attr("href"))
-    
-  # if not videosOnly:
-  #   let images = media.filter(x => x.split(".")[^1] in ["jpg","jpeg","png","webp","gif"])
-  #   waitFor downloadConcurrent(images, maxConcurrentDls, dir)
 
-  # if not imagesOnly:
-  #   let videos = media.filter(x => x.split(".")[^1] == "webm")
-  #   waitFor downloadConcurrent(videos, maxConcurrentDls, dir)
+  let t0 = cpuTime()
+  echo "downloading images"  
+  if not videosOnly:
+     let images = media.filter(x => x.split(".")[^1] in ["jpg","jpeg","png","webp","gif"])
+     waitFor downloadConcurrent(images, parallelDlLimit, dir)
+
+  echo "downloading videos"  
+  if not imagesOnly:
+     let videos = media.filter(x => x.split(".")[^1] == "webm")
+     waitFor downloadConcurrent(videos, parallelDlLimit, dir)
+
+  let t1 = cpuTime()
+  echo("finished in " & $(t1-t0) & " seconds")
 
 
 when isMainModule:
@@ -52,7 +96,7 @@ when isMainModule:
     help = {
       "videosOnly" : "download videos only.",
       "imagesOnly" : "download images only.",
-      "maxConcurrentDls": "set maximum parallel downloads. default: 1",
+      "parallelDlLimit": "set a limit for parallel downloads. default: 0 - means no limit",
       "dir": "set download directory. default: current directory",
-      "link": "thread link"}
+      "link": "thread link - REQUIRED"}
   )

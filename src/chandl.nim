@@ -17,10 +17,10 @@ proc chunkArray[T](array: seq[T], size: int): seq[seq[T]] =
 
 proc download(links: seq[string], dir: string) {.async.} =
   let fileNames = links.map(x => x.split("/")[^1])
-  let linkNamePairs = zip(links, dir / filenames)
+  let linkNamePairs = zip(links, filenames)
   for pair in linkNamePairs:
     let downloader = newAsyncHttpClient()
-    asyncCheck downloader.downloadFile(pair[0], pair[1])
+    asyncCheck downloader.downloadFile(pair[0], dir / pair[1])
 
 proc downloadConcurrent(links: seq[string], maxConcurrentDls: int, dir: string) {.async.} =
   for chunk in chunkArray(links, maxConcurrentDls):

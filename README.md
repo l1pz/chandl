@@ -8,12 +8,12 @@ chandl [options]... [thread link]
 
 ### Options
 
-**-v, --videos** - Download only videos.
+**-v, --videos** - Download videos only.
 
-**-i, --images** - Download only images.
+**-i, --images** - Download images only.
 
 **-j, --max-concurrent-downloads=<N\>** - Set maximum parallel downloads. Default: 1
 
-**-d, --dir=<DIR\>** - Set download directory.
+**-d, --dir=<DIR\>** - Set download directory. Default: ./
 
 **-h, --help** - Prints help.

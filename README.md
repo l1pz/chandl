@@ -16,4 +16,4 @@ chandl [required&optional-params]
 | -i, --imagesOnly         | bool   | false    | download images only.           |
 | -m=, --maxConcurrentDls= | int    | 1        | set maximum parallel downloads. |
 | -d=, --dir=              | string | "./"     | set download directory.         |
-| -l=, --links=            | string | REQUIRED | thread links                    |
+| -l=, --link=             | string | REQUIRED | thread link                     |

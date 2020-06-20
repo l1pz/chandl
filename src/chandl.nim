@@ -20,6 +20,7 @@ proc chunkArray[T](array: seq[T], size: int): seq[seq[T]] =
 proc download(link: string, path: string) {.async.} =
   let downloader = newAsyncHttpClient()
   await downloader.downloadFile(link, path)
+  downloader.close
 
 proc checkDownloads(downloads: seq[Future[void]], bar: ref ProgressBar): auto =
   var retFuture = newFuture[void]("downloadsCheck")

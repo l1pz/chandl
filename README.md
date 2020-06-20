@@ -8,12 +8,12 @@ chandl [required&optional-params]
 
 ## Options
 
-| parameter                | type   | default  | description                    |
-| ------------------------ | ------ | -------- | ------------------------------ |
-| -h, --help               |        |          | print this cligen-erated help  |
-| --help-syntax            |        |          | advanced: prepend,plurals,..   |
-| -v, --videosOnly         | bool   | false    | download videos only           |
-| -i, --imagesOnly         | bool   | false    | download images only           |
-| -m=, --maxConcurrentDls= | int    | 1        | set maximum parallel downloads |
-| -d=, --dir=              | string | "./"     | set download directory.        |
-| -l=, --link=             | string | REQUIRED | thread link                    |
+| parameter               | description                                                     |
+| ----------------------- | --------------------------------------------------------------- |
+| -h, --help              | print this cligen-erated help                                   |
+| --help-syntax           | advanced: prepend,plurals,..                                    |
+| -v, --videosOnly        | download videos only                                            |
+| -i, --imagesOnly        | download images only                                            |
+| -p=, --parallelDlLimit= | set a limit for parallel downloads. default: 0 - means no limit |
+| -d=, --dir=             | set download directory.                                         |
+| -l=, --link=            | thread link  - REQUIRED                                         |

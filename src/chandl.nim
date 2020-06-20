@@ -9,7 +9,7 @@ import cligen
 import httpclient
 import nimquery
 
-template chunkArray(array: seq[untyped], size: int): seq[seq[untyped]] =
+proc chunkArray[T](array: seq[T], size: int): seq[seq[T]] =
   var index = 0
   while index < array.len:
     result.add(array[index .. size + index])
@@ -36,14 +36,8 @@ proc chandl(videosOnly=false,imagesOnly=false,maxConcurrentDls=1,dir="./", link:
   let videos = media.filter(x => x.split(".")[^1] == "webm")
 
   echo &"Images ({images.len}):"
-  for image in images:
-    echo image
-
-  echo &"Videos ({videos.len}):"
-  for video in videos:
-    echo video
-  
-
+  for chunk in chunkArray(images, 3):
+    echo chunk
 
 when isMainModule:
   dispatch(

@@ -1,5 +1,14 @@
-# This is just an example to get you started. A typical binary package
-# uses this file as the main entry point of the application.
+import cligen;
+
+proc chandl(videosOnly=false,imagesOnly=false,maxConcurrentDls=1,dir="./") =
+  echo "hello world"
 
 when isMainModule:
-  echo("Hello, World!")
+  dispatch(
+    chandl, 
+    help = {
+      "videosOnly" : "download videos only.",
+      "imagesOnly" : "download images only.",
+      "maxConcurrentDls": "set maximum parallel downloads. Default: 1",
+      "dir": "set download directory. Default: ./"}
+  )

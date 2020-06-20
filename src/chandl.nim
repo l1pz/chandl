@@ -12,7 +12,7 @@ import nimquery
 proc chunkArray[T](array: seq[T], size: int): seq[seq[T]] =
   var index = 0
   while index < array.len:
-    result.add(array[index .. size + index])
+    result.add(array[index .. min(index + size - 1, array.len - 1)])
     index += size
 
 proc download(links: seq[string]) {.async.} =

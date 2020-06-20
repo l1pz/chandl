@@ -12,8 +12,8 @@ chandl [options]... [thread link]
 
 **-i, --images** - Download only images.
 
-**-j, --max-concurrent-downloads=\<N\>** - Set maximum parallel downloads. Default: 1
+**-j, --max-concurrent-downloads=<N\>** - Set maximum parallel downloads. Default: 1
 
-**-d, --dir=\<DIR\>** - Set download directory.
+**-d, --dir=<DIR\>** - Set download directory.
 
 **-h, --help** - Prints help.

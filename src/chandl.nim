@@ -1,9 +1,36 @@
-import cligen;
+from xmltree import `$`, attr
+from htmlparser import parseHtml
+import sequtils
+import sugar
+import strformat
+import asyncdispatch 
+
+import cligen
+import httpclient
+import nimquery
 
 proc chandl(videosOnly=false,imagesOnly=false,maxConcurrentDls=1,dir="./", link: string) =
   if videosOnly and imagesOnly:
-    quit("Please use either videosOnly or imagesOnly switch, but not both!")
+    quit("Please use either -v/--videosOnly or -i/--imagesOnly switch, but not both!")
+
+  let client = newHttpClient()
+  let media = client.getContent(link)
+    .parseHtml
+    .querySelectorAll("a.fileThumb")
+    .map(x => x.attr("href"))
+    
+  let images = media.filter(x => x.split(".")[^1] in ["jpg","jpeg","png","webp","gif"])
+  let videos = media.filter(x => x.split(".")[^1] == "webm")
+
+  echo &"Images ({images.len}):"
+  for image in images:
+    echo image
+
+  echo &"Videos ({videos.len}):"
+  for video in videos:
+    echo video
   
+
 
 when isMainModule:
   dispatch(
